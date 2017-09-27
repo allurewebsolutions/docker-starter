@@ -56,3 +56,7 @@ Deploy docker-based WordPress stack to your own server via [![Wodby](https://www
 ## License
 
 This project is licensed under the MIT open source license.
+
+## Multisites
+To make multsites work, use a subdomain install and stack subdomains in the docker-compose.yml frontend rule for nginx. For example:
+`- 'traefik.frontend.rule=Host:viasatdealer.docker.localhost,test.viasatdealer.docker.localhost'`
