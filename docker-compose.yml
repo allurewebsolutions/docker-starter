@@ -17,16 +17,16 @@ services:
     image: wodby/wordpress-php:7.0-2.2.0
     environment:
       WP_ENV: development
-      SHORT_OPEN_TAG: "On"
       PHP_SENDMAIL_PATH: /usr/sbin/sendmail -t -i -S mailhog:1025
       # PHP_XDEBUG: 1
       # PHP_XDEBUG_DEFAULT_ENABLE: 1
       # PHP_XDEBUG_REMOTE_CONNECT_BACK: 0         # This is needed to respect remote.host setting bellow
       # PHP_XDEBUG_REMOTE_HOST: "10.254.254.254"  # You will also need to 'sudo ifconfig lo0 alias 10.254.254.254'
     volumes:
+      - /absolute/path/to/project/config/php/php.ini:/usr/local/etc/php/php.ini
 #      - /absolute/path/to/project/www:/var/www/html
       - docker-sync-<project-name>:/var/www/html # Docker-sync
-#      - /Users/ninja/Sites/codegeek/viasat-dealer/data/bin/build.sh:/usr/local/bin/build.sh
+#      - /absolute/path/to/project/data/bin/build.sh:/usr/local/bin/build.sh
 #    command: /bin/ash -c "/usr/local/bin/build.sh"
 
   nginx:
