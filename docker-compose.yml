@@ -85,22 +85,22 @@ services:
 #      WEAVER_WORKER_TIMEOUT: 90
 #      WEAVER_CONVERSION_FALLBACK: false
 
-  mailhog:
-    image: mailhog/mailhog
-    labels:
-      - 'traefik.backend=mailhog'
-      - 'traefik.port=8025'
-      - 'traefik.frontend.rule=Host:mailhog.<project-name>.docker.localhost'
+#  mailhog:
+#    image: mailhog/mailhog
+#    labels:
+#      - 'traefik.backend=<project-name>_mailhog'
+#      - 'traefik.port=8025'
+#      - 'traefik.frontend.rule=Host:mailhog.<project-name>.docker.localhost'
 
-  portainer:
-    image: portainer/portainer
-    command: --no-auth
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    labels:
-      - 'traefik.backend=portainer'
-      - 'traefik.port=9000'
-      - 'traefik.frontend.rule=Host:portainer.<project-name>.docker.localhost'
+#  portainer:
+#    image: portainer/portainer
+#    command: --no-auth
+#    volumes:
+#      - /var/run/docker.sock:/var/run/docker.sock
+#    labels:
+#      - 'traefik.backend=portainer'
+#      - 'traefik.port=9000'
+#      - 'traefik.frontend.rule=Host:portainer.<project-name>.docker.localhost'
 
 volumes:
   docker-sync-<project-name>:
