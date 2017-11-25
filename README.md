@@ -1,62 +1,74 @@
-# Docker-based WordPress Stack
-
-[![Documentation Status](https://readthedocs.org/projects/docker4wordpress/badge/?version=latest)](http://docs.docker4wordpress.org)
-[![Build Status](https://travis-ci.org/wodby/docker4wordpress.svg?branch=master)](https://travis-ci.org/wodby/docker4wordpress)
-[![Wodby Slack](http://slack.wodby.com/badge.svg)](http://slack.wodby.com)
-[![Wodby Twitter](https://img.shields.io/twitter/follow/wodbyhq.svg?style=social&label=Follow)](https://twitter.com/wodbyhq)
+# WordPress Docker Starter
 
 ## Introduction
 
-Docker4WordPress is a set of docker images optimized for WordPress. Use docker-compose.yml file from this repository to spin up a local environment for WordPress on Linux, macOS and Windows. 
+This is a docker starter specifically tailored for WordPress projects. The goal of the repo is to help you efficiently setup a local development environment with either a fresh installation of WordPress, or cloning another site.
 
-Read [**Getting Started**](http://docker4wordpress.readthedocs.io).
+Read the documention from which this repo is forked: [**Getting Started**](http://docker4wordpress.readthedocs.io)
 
-## Stack
+## Repo Structure
+| Files/Folders      	| Description                  	|
+|--------------------	|------------------------------	|
+| bin                	| helper scripts               	|
+| config             	| config files (php)           	|
+| data               	| db saved here                	|
+| init               	| init scripts (sql)           	|
+| www                	| wordpress files located here 	|
+| docker-compose.yml 	|                              	|
+| docker-sync.yml    	|                              	|
 
-[wodby/wordpress-nginx]: https://github.com/wodby/wordpress-nginx
-[wodby/wordpress-apache]: https://github.com/wodby/wordpress-apache
-[wodby/wordpress]: https://github.com/wodby/wordpress
-[wodby/wordpress-php]: https://github.com/wodby/wordpress-php
-[wodby/mariadb]: https://github.com/wodby/mariadb
-[wodby/redis]: https://github.com/wodby/redis
-[wodby/wordpress-varnish]: https://github.com/wodby/wordpress-varnish
-[athenapdf-service]: https://hub.docker.com/r/arachnysdocker/athenapdf-service
-[phpmyadmin]: https://hub.docker.com/r/phpmyadmin/phpmyadmin
-[mailhog]: https://hub.docker.com/r/mailhog/mailhog
-[portainer]: https://hub.docker.com/r/portainer/portainer
-[_/traefik]: https://hub.docker.com/_/traefik
+## Getting Started
+#### Setting up `docker-compose.yml` and `docker-sync.yml`
+1. Find/replace **<project-name>** with a handle for your project
+1. Find/replace **/absolute/path/to/project** with the absolute path to your project root
 
-The WordPress stack consist of the following containers:
+#### Fresh Installation
+1. Setup docker-compose.yml and docker-sync.yml
+1. Run the Install WordPress or Start Mac scripts (see "Helper Scripts" section below)
 
-| Container | Versions | Service name | Image | Enabled by default |
-| --------- | -------- | ------------ | ----- | ------------------ |
-| Nginx      | 1.13, 1.12 | nginx     | [wodby/wordpress-nginx]   | ✓ |
-| Apache     | 2.4        | php       | [wodby/wordpress-apache]  |   |
-| WordPress  | 4          | php       | [wodby/wordpress]         | ✓ |
-| PHP        | 7.1, 7.0   | php       | [wodby/wordpress-php]     |   |
-| MariaDB    | 10.1       | mariadb   | [wodby/mariadb]           | ✓ |
-| Redis      | 3.2        | redis     | [wodby/redis]             |   |
-| Varnish    | 4.1        | varnish   | [wodby/wordpress-varnish] |   |
-| AthenaPDF  | latest     | athenapdf | [athenapdf-service]       |   |
-| phpMyAdmin | latest     | pma       | [phpmyadmin]              |   |
-| Mailhog    | latest     | mailhog   | [mailhog]                 | ✓ |
-| Portainer  | latest     | portainer | [portainer]               | ✓ |
-| Traefik    | latest     | traefik   | [_/traefik]               | ✓ |
+#### Cloning Existing Site
+1. Setup docker-compose.yml and docker-sync.yml
+1. Place the database export into `init/db`
+1. Run the Install WordPress or Start Mac scripts (see "Helper Scripts" section below)
+1. Copy plugins/themes/media in `www/wp-content`
 
-Supported WordPress versions: 4
+## Features
+This repo comes with a few helper bash scripts to make it easier to accomplish certain functions. Run all of them using this format from the project root: `sh bin/script.sh COMMAND`
 
-## Documentation
+### Helper scripts
 
-Full documentation is available at http://docker4wordpress.readthedocs.io.
+##### Start Project Scripts (Mac only for now)
+One single script that starts up your project. It will ask you if you want to install WordPress as well, which will then run the both the Install WordPress and Traefik Help scripts below.
 
-## Deployment
+Usage: `sh bin/start-mac.sh up -d`
 
-Deploy docker-based WordPress stack to your own server via [![Wodby](https://www.google.com/s2/favicons?domain=wodby.com) Wodby](https://cloud.wodby.com/stackhub/dcca9437-eef2-4b3b-8ab2-b7c9c480a19e/detail).
+##### Install WordPress
+Install WordPress with a few different options. The script will check if WordPress is already installed (www/wp-config.php file found). If it is, you will be asked if you want to reinstall. If WordPress installed installed, it will proceed with the installation and then ask you whether you want to setup the DB or not.
 
-## License
+Example: `sh bin/install-wordpress.sh`
 
-This project is licensed under the MIT open source license.
+##### WP
+Execute WP CLI commands on the PHP container
 
-## Multisites
+Example: `sh bin/wp.sh plugin list`
+
+##### SSH
+Shell into the PHP container
+
+##### Composer
+Execute composer commands on the root of the project in the PHP container
+
+Example: `sh bin/composer.sh install`
+
+##### Traefik Helper
+Initiate Traefik on all projects defined in your docker-compose.yml file
+
+Usage: `sh bin/traefik-helper.sh up -d`
+
+
+## WordPress Multisites
 To make multsites work, use a subdomain install and stack subdomains in the docker-compose.yml frontend rule for nginx. For example:
 `- 'traefik.frontend.rule=Host:viasatdealer.docker.localhost,test.viasatdealer.docker.localhost'`
+
+## Troubleshooting
+If traefik won't start, make sure nothing is bound to port 80, such as Mac's internal apache, which can be stopped with `sudo /usr/sbin/apachectl stop`
