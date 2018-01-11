@@ -45,6 +45,7 @@ services:
       - 'traefik.backend=<project-name>_nginx'
       - 'traefik.port=80'
       - 'traefik.frontend.rule=Host:<project-name>.docker.localhost'
+#      - 'traefik.frontend.rule=HostRegexp:{subdomain:.+}.<project-name>.docker.localhost,<project-name>.docker.localhost'
 
 #  varnish:
 #    image: wodby/wordpress-varnish:4.1-2.2.0

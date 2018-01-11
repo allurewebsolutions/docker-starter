@@ -30,6 +30,7 @@ Read the documention from which this repo is forked: [**Getting Started**](http:
 1. Setup docker-compose.yml and docker-sync.yml
 1. Place the database export into `init/db`
 1. Run the Install WordPress or Start Mac scripts (see "Helper Scripts" section below)
+1. When the script asks you whether the database is already installed, say yes
 1. Copy plugins/themes/media in `www/wp-content`
 
 ## Features
@@ -40,7 +41,10 @@ This repo comes with a few helper bash scripts to make it easier to accomplish c
 ##### Start Project Scripts (Mac only for now)
 One single script that starts up your project. It will ask you if you want to install WordPress as well, which will then run the both the Install WordPress and Traefik Help scripts below.
 
-Usage: `sh bin/start-mac.sh up -d`
+Usage: 
+
+- Start containers (default): `sh bin/start-mac.sh -d`
+- Start containers (skip WordPress prompt): `sh bin/start-mac.sh -d -s`
 
 ##### Install WordPress
 Install WordPress with a few different options. The script will check if WordPress is already installed (www/wp-config.php file found). If it is, you will be asked if you want to reinstall. If WordPress installed installed, it will proceed with the installation and then ask you whether you want to setup the DB or not.
@@ -69,6 +73,8 @@ Usage: `sh bin/traefik-helper.sh up -d`
 ## WordPress Multisites
 To make multsites work, use a subdomain install and stack subdomains in the docker-compose.yml frontend rule for nginx. For example:
 `- 'traefik.frontend.rule=Host:viasatdealer.docker.localhost,test.viasatdealer.docker.localhost'`
+
+Alternatively, if you want to target all possible subdomains, you can comment out line 47 and uncomment line 48 in the docker-compose.yml. This will make other containers such as the phpmyadmin not work.
 
 ## Troubleshooting
 If traefik won't start, make sure nothing is bound to port 80, such as Mac's internal apache, which can be stopped with `sudo /usr/sbin/apachectl stop`
