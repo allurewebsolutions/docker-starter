@@ -22,6 +22,9 @@ then
         read -r -p "Email: " email
 
         docker-compose exec --user 82 php wp core install --url=$url --title="$name" --admin_name=$username --admin_password=$password --admin_email=$email
+
+        find . -type d -exec chmod 755 {} \;  # Change directory permissions rwxr-xr-x
+        find . -type f -exec chmod 644 {} \;  # Change file permissions rw-r--r--
 	else
 	    echo "Exiting."
 	fi
@@ -49,5 +52,8 @@ else
 	    read -r -p "Email: " email
 
 	    docker-compose exec --user 82 php wp core install --url=$url --title="$name" --admin_name=$username --admin_password=$password --admin_email=$email
+
+        find . -type d -exec chmod 755 {} \;  # Change directory permissions rwxr-xr-x
+        find . -type f -exec chmod 644 {} \;  # Change file permissions rw-r--r--
 	fi
 fi

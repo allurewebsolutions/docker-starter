@@ -19,8 +19,7 @@ Read the documention from which this repo is forked: [**Getting Started**](http:
 
 ## Getting Started
 #### Setting up `docker-compose.yml` and `docker-sync.yml`
-1. Find/replace **<project-name>** with a handle for your project
-1. Find/replace **/absolute/path/to/project** with the absolute path to your project root
+1. Find/replace `<project-name>` with a handle for your project
 
 #### Fresh Installation
 1. Setup docker-compose.yml and docker-sync.yml
@@ -44,7 +43,7 @@ One single script that starts up your project. It will ask you if you want to in
 Usage: 
 
 - Start containers (default): `sh bin/start-mac.sh -d`
-- Start containers (skip WordPress prompt): `sh bin/start-mac.sh -d -s`
+- Start containers (skip WordPress prompt): `sh bin/start-mac.sh -d -no-install`
 
 ##### Install WordPress
 Install WordPress with a few different options. The script will check if WordPress is already installed (www/wp-config.php file found). If it is, you will be asked if you want to reinstall. If WordPress installed installed, it will proceed with the installation and then ask you whether you want to setup the DB or not.

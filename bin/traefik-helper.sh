@@ -58,7 +58,7 @@ ${NETWORK_LIST}
       - '80:80'
       - '443:443'
       - '8080:8080'
-      - '1025:1025'
+      - '8025:8025'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped

@@ -1,7 +1,0 @@
-version: "2"
-
-syncs:
-  docker-sync-<project-name>:
-    src: '/absolute/path/to/project/www'
-    sync_userid: '82'
-    sync_excludes: ['.gitignore', '.git/', '.idea/']
