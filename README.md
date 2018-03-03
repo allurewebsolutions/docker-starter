@@ -75,5 +75,15 @@ To make multsites work, use a subdomain install and stack subdomains in the dock
 
 Alternatively, if you want to target all possible subdomains, you can comment out line 47 and uncomment line 48 in the docker-compose.yml. This will make other containers such as the phpmyadmin not work.
 
+## BrowserSync
+If you are using some sort of build workflow (Gulp/Webpack/Grunt) with BrowserSync, you have to use a temporary workaround. I'm still working on a viable solution to this.
+
+In your BrowserSync config remove and reference to proxy/server. Then add the following code right before your closing `</body>` tag:
+```
+<script id="__bs_script__">//<![CDATA[
+    document.write("<script async src='http://HOST:3000/browser-sync/browser-sync-client.js?v=2.18.13'><\/script>".replace("HOST", location.hostname));
+//]]></script>
+```
+
 ## Troubleshooting
 If traefik won't start, make sure nothing is bound to port 80, such as Mac's internal apache, which can be stopped with `sudo /usr/sbin/apachectl stop`
