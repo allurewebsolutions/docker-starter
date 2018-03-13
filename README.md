@@ -15,22 +15,22 @@ Read the documention from which this repo is forked: [**Getting Started**](http:
 | init               	| init scripts (sql)           	|
 | www                	| wordpress files located here 	|
 | docker-compose.yml 	|                              	|
-| docker-sync.yml    	|                              	|
+| .env    	            | sets variables             	|
+| docker.mk    	        | defines make commands        	|
 
 ## Getting Started
-#### Setting up `docker-compose.yml` and `docker-sync.yml`
-1. Find/replace `<project-name>` with a handle for your project
+#### Setting up your project
+1. Open the `.env` file and replace `<<project-name>>` with a name for your project
 
 #### Fresh Installation
-1. Setup docker-compose.yml and docker-sync.yml
+1. Setup `.env`
 1. Run the Install WordPress or Start Mac scripts (see "Helper Scripts" section below)
 
 #### Cloning Existing Site
-1. Setup docker-compose.yml and docker-sync.yml
+1. Setup `.env`
 1. Place the database export into `init/db`
 1. Run the Install WordPress or Start Mac scripts (see "Helper Scripts" section below)
-1. When the script asks you whether the database is already installed, say yes
-1. Copy plugins/themes/media in `www/wp-content`
+1. Copy plugins/themes/media into `www/wp-content`
 
 ## Features
 This repo comes with a few helper bash scripts to make it easier to accomplish certain functions. Run all of them using this format from the project root: `sh bin/script.sh COMMAND`
@@ -42,11 +42,11 @@ One single script that starts up your project. It will ask you if you want to in
 
 Usage: 
 
-- Start containers (default): `sh bin/start-mac.sh -d`
-- Start containers (skip WordPress prompt): `sh bin/start-mac.sh -d -no-install`
+- Start containers (default): `sh bin/start-mac.sh`
+- Start containers (skip WordPress prompt): `sh bin/start-mac.sh -no-install`
 
 ##### Install WordPress
-Install WordPress with a few different options. The script will check if WordPress is already installed (www/wp-config.php file found). If it is, you will be asked if you want to reinstall. If WordPress installed installed, it will proceed with the installation and then ask you whether you want to setup the DB or not.
+Install WordPress with a few different options. The script will check if WordPress is already installed (www/wp-config.php file found). If it is, you will be asked if you want to reinstall. If WordPress isn't installed, it will proceed with the installation and then ask you whether you want to setup the DB or not.
 
 Example: `sh bin/install-wordpress.sh`
 
@@ -58,6 +58,8 @@ Example: `sh bin/wp.sh plugin list`
 ##### SSH
 Shell into the PHP container
 
+Usage: `sh bin/ssh.sh` or `make shell`
+
 ##### Composer
 Execute composer commands on the root of the project in the PHP container
 
@@ -68,9 +70,13 @@ Initiate Traefik on all projects defined in your docker-compose.yml file
 
 Usage: `sh bin/traefik-helper.sh up -d`
 
+##### Delete all containers
+This will remove all container, but data will not be lost because it's stored on your hard drive
+
+Usage: `make prune`
 
 ## WordPress Multisites
-To make multsites work, use a subdomain install and stack subdomains in the docker-compose.yml frontend rule for nginx. For example:
+To make multsites work, use a subdomain install and list subdomains in the docker-compose.yml frontend rule for nginx. For example:
 `- 'traefik.frontend.rule=Host:viasatdealer.docker.localhost,test.viasatdealer.docker.localhost'`
 
 Alternatively, if you want to target all possible subdomains, you can comment out line 47 and uncomment line 48 in the docker-compose.yml. This will make other containers such as the phpmyadmin not work.

@@ -9,8 +9,8 @@ services:
       MYSQL_USER: wordpress
       MYSQL_PASSWORD: wordpress
     volumes:
-      - $PWD/init/db:/docker-entrypoint-initdb.d # Place init .sql file(s) here.
-      - $PWD/data/db:/var/lib/mysql # I want to manage volumes manually.
+      - ./init/db:/docker-entrypoint-initdb.d # Place init .sql file(s) here.
+      - ./data/db:/var/lib/mysql # I want to manage volumes manually.
 
   php:
 #    image: wodby/wordpress-php:7.2-3.3.1
@@ -19,16 +19,10 @@ services:
       WP_ENV: development
       PHP_SENDMAIL_PATH: /usr/sbin/sendmail -t -i -S mailhog:1025
       PHP_FPM_CLEAR_ENV: "no"
-#      PHP_XDEBUG: 1
-#      PHP_XDEBUG_DEFAULT_ENABLE: 1
-#      PHP_XDEBUG_REMOTE_CONNECT_BACK: 0
-#      PHP_XDEBUG_REMOTE_HOST: "10.254.254.254"
-#      PHP_XDEBUG_PROFILER_OUTPUT_DIR: /mnt/files/xdebug/profiler
-#      PHP_XDEBUG_TRACE_OUTPUT_DIR: /mnt/files/xdebug/traces
     volumes:
-      - $PWD/config/php/php.ini:/usr/local/etc/php/php.ini
-      - $PWD/www:/var/www/html
-#      - $PWD/data/bin/build.sh:/usr/local/bin/build.sh
+      - ./config/php/php.ini:/usr/local/etc/php/php.ini
+      - ./www:/var/www/html
+#      - ./data/bin/build.sh:/usr/local/bin/build.sh
 #    command: /bin/ash -c "/usr/local/bin/build.sh"
 
   nginx:
@@ -38,30 +32,14 @@ services:
       NGINX_ERROR_LOG_LEVEL: debug
       NGINX_BACKEND_HOST: php
     volumes:
-      - $PWD/www:/var/www/html
+      - ./www:/var/www/html
     depends_on:
       - php
     labels:
-      - 'traefik.backend=<project-name>_nginx'
+      - 'traefik.backend=${PROJECT_NAME}_nginx'
       - 'traefik.port=80'
-      - 'traefik.frontend.rule=Host:<project-name>.docker.localhost'
-#      - 'traefik.frontend.rule=HostRegexp:{subdomain:.+}.<project-name>.docker.localhost,<project-name>.docker.localhost'
-
-#  varnish:
-#    image: wodby/wordpress-varnish:4.1-2.3.1
-#    depends_on:
-#      - nginx
-#    environment:
-#      VARNISH_SECRET: secret
-#      VARNISH_BACKEND_HOST: nginx
-#      VARNISH_BACKEND_PORT: 80
-#    labels:
-#      - 'traefik.backend=<project-name>_varnish'
-#      - 'traefik.port=6081'
-#      - 'traefik.frontend.rule=Host:varnish.<project-name>.docker.localhost'
-
-#  redis:
-#    image: wodby/redis:4.0-2.1.4
+      - 'traefik.frontend.rule=Host:${PROJECT_NAME}.docker.localhost'
+#      - 'traefik.frontend.rule=HostRegexp:{subdomain:.+}.${PROJECT_NAME}.docker.localhost,${PROJECT_NAME}.docker.localhost'
 
   pma:
     image: phpmyadmin/phpmyadmin
@@ -72,26 +50,16 @@ services:
       PHP_UPLOAD_MAX_FILESIZE: 1G
       PHP_MAX_INPUT_VARS: 1G
     labels:
-      - 'traefik.backend=<project-name>_pma'
+      - 'traefik.backend=${PROJECT_NAME}_pma'
       - 'traefik.port=80'
-      - 'traefik.frontend.rule=Host:pma.<project-name>.docker.localhost'
-
-#  athenapdf:
-#    image: arachnysdocker/athenapdf-service:2.10.0
-#    environment:
-#      WEAVER_AUTH_KEY: weaver-auth-key
-#      WEAVER_ATHENA_CMD: "athenapdf -S"
-#      WEAVER_MAX_WORKERS: 10
-#      WEAVER_MAX_CONVERSION_QUEUE: 50
-#      WEAVER_WORKER_TIMEOUT: 90
-#      WEAVER_CONVERSION_FALLBACK: false
+      - 'traefik.frontend.rule=Host:pma.${PROJECT_NAME}.docker.localhost'
 
   mailhog:
     image: mailhog/mailhog
     labels:
-      - 'traefik.backend=<project-name>_mailhog'
+      - 'traefik.backend=${PROJECT_NAME}_mailhog'
       - 'traefik.port=8025'
-      - 'traefik.frontend.rule=Host:mailhog.<project-name>.docker.localhost'
+      - 'traefik.frontend.rule=Host:mailhog.${PROJECT_NAME}.docker.localhost'
 
 #  portainer:
 #    image: portainer/portainer
@@ -99,6 +67,22 @@ services:
 #    volumes:
 #      - /var/run/docker.sock:/var/run/docker.sock
 #    labels:
-#      - 'traefik.backend=<project-name>_portainer'
+#      - 'traefik.backend=${PROJECT_NAME}_portainer'
 #      - 'traefik.port=9000'
-#      - 'traefik.frontend.rule=Host:portainer.<project-name>.docker.localhost'
+#      - 'traefik.frontend.rule=Host:portainer.${PROJECT_NAME}.docker.localhost'
+
+#  varnish:
+#    image: wodby/wordpress-varnish:4.1-2.3.1
+#    depends_on:
+#      - nginx
+#    environment:
+#      VARNISH_SECRET: secret
+#      VARNISH_BACKEND_HOST: nginx
+#      VARNISH_BACKEND_PORT: 80
+#    labels:
+#      - 'traefik.backend=${PROJECT_NAME}_varnish'
+#      - 'traefik.port=6081'
+#      - 'traefik.frontend.rule=Host:varnish.${PROJECT_NAME}.docker.localhost'
+
+#  redis:
+#    image: wodby/redis:4.0-2.1.4
