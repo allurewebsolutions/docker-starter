@@ -20,7 +20,8 @@ Read the documention from which this repo is forked: [**Getting Started**](http:
 
 ## Getting Started
 #### Setting up your project
-1. Open the `.env` file and replace `<<project-name>>` with a name for your project
+1. Open the `.env` file and replace `projectname` with a name for your project
+2. Everything else in the `.env` file can be left as is or updated to your needs
 
 #### Fresh Installation
 1. Setup `.env`
@@ -30,12 +31,12 @@ Read the documention from which this repo is forked: [**Getting Started**](http:
 1. Setup `.env`
 1. Place the database export into `init/db`
 1. Run the Install WordPress or Start Mac scripts (see "Helper Scripts" section below)
-1. Copy plugins/themes/media into `www/wp-content`
+1. Copy plugins/themes/media into `www/wp-content` (recommended method is RSYNC)
 
 ## Features
 This repo comes with a few helper bash scripts to make it easier to accomplish certain functions. Run all of them using this format from the project root: `sh bin/script.sh COMMAND`
 
-### Helper scripts
+## Helper scripts
 
 ##### Start Project Scripts (Mac only for now)
 One single script that starts up your project. It will ask you if you want to install WordPress as well, which will then run the both the Install WordPress and Traefik Help scripts below.
@@ -43,7 +44,7 @@ One single script that starts up your project. It will ask you if you want to in
 Usage: 
 
 - Start containers (default): `sh bin/start-mac.sh`
-- Start containers (skip WordPress prompt): `sh bin/start-mac.sh -no-install`
+- Start containers (skip WordPress installation prompt): `sh bin/start-mac.sh -no-install`
 
 ##### Install WordPress
 Install WordPress with a few different options. The script will check if WordPress is already installed (www/wp-config.php file found). If it is, you will be asked if you want to reinstall. If WordPress isn't installed, it will proceed with the installation and then ask you whether you want to setup the DB or not.
@@ -53,7 +54,7 @@ Example: `sh bin/install-wordpress.sh`
 ##### WP
 Execute WP CLI commands on the PHP container
 
-Example: `sh bin/wp.sh plugin list`
+Example: `sh bin/wp.sh plugin list` or `make wp`
 
 ##### SSH
 Shell into the PHP container
@@ -70,6 +71,9 @@ Initiate Traefik on all projects defined in your docker-compose.yml file
 
 Usage: `sh bin/traefik-helper.sh up -d`
 
+##### View Logs
+`make logs` to view all logs or view specific logs by referencing a container(s) `logs nginx php`
+
 ##### Delete all containers
 This will remove all container, but data will not be lost because it's stored on your hard drive
 
@@ -79,7 +83,7 @@ Usage: `make prune`
 To make multsites work, use a subdomain install and list subdomains in the docker-compose.yml frontend rule for nginx. For example:
 `- 'traefik.frontend.rule=Host:viasatdealer.docker.localhost,test.viasatdealer.docker.localhost'`
 
-Alternatively, if you want to target all possible subdomains, you can comment out line 47 and uncomment line 48 in the docker-compose.yml. This will make other containers such as the phpmyadmin not work.
+Alternatively, if you want to target all possible subdomains, you can comment out line 47 and uncomment line 48 in the docker-compose.yml. This will make other containers such as the phpmyadmin container not work.
 
 ## BrowserSync
 If you are using some sort of build workflow (Gulp/Webpack/Grunt) with BrowserSync, you have to use a temporary workaround. I'm still working on a viable solution to this.

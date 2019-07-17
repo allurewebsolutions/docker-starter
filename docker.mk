@@ -4,7 +4,7 @@ include .env
 
 default: up
 
-	WP_ROOT ?= /var/www/html/
+WP_ROOT ?= /var/www/html/
 
 ## help	:	Print commands help.
 help: docker.mk
@@ -51,7 +51,7 @@ wp:
 	docker exec $(shell docker ps --filter name='^/$(PROJECT_NAME)_php' --format "{{ .ID }}") wp --path=$(WP_ROOT) $(filter-out $@,$(MAKECMDGOALS))
 
 ## logs	:	View containers logs.
-##		You can optinally pass an argument with the service name to limit logs
+##		You can optionally pass an argument with the service name to limit logs
 ##		logs php	: View `php` container logs.
 ##		logs nginx php	: View `nginx` and `php` containers logs.
 logs:

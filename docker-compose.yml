@@ -1,52 +1,71 @@
-version: "2"
+version: "3"
 
 services:
   mariadb:
-    image: wodby/mariadb:10.1-2.3.3
+    image: wodby/mariadb:$MARIADB_TAG
+    container_name: "${PROJECT_NAME}_mariadb"
+    stop_grace_period: 30s
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: wordpress
-      MYSQL_USER: wordpress
-      MYSQL_PASSWORD: wordpress
+      MYSQL_ROOT_PASSWORD: $DB_ROOT_PASSWORD
+      MYSQL_DATABASE: $PROJECT_NAME
+      MYSQL_USER: $DB_USER
+      MYSQL_PASSWORD: $DB_PASSWORD
     volumes:
       - ./init/db:/docker-entrypoint-initdb.d # Place init .sql file(s) here.
       - ./data/db:/var/lib/mysql # I want to manage volumes manually.
 
   php:
-#    image: wodby/wordpress-php:7.2-3.3.1
-    image: wodby/wordpress-php:7.1-3.3.1
+    image: wodby/wordpress-php:$PHP_TAG
+    container_name: "${PROJECT_NAME}_php"
     environment:
-      WP_ENV: development
+      WP_ENV: $ENV
       PHP_SENDMAIL_PATH: /usr/sbin/sendmail -t -i -S mailhog:1025
-      PHP_FPM_CLEAR_ENV: "no"
+      DB_HOST: $DB_HOST
+      DB_USER: $DB_USER
+      DB_PASSWORD: $DB_PASSWORD
+      DB_NAME: $PROJECT_NAME
+      PHP_FPM_USER: wodby
+      PHP_FPM_GROUP: wodby
+      ## Read instructions at https://wodby.com/stacks/wordpress/docs/local/xdebug/
+#      PHP_XDEBUG: 1
+#      PHP_XDEBUG_DEFAULT_ENABLE: 1
+#      PHP_XDEBUG_REMOTE_CONNECT_BACK: 0
+#      PHP_IDE_CONFIG: serverName=my-ide
+#      PHP_XDEBUG_REMOTE_HOST: 172.17.0.1 # Linux
+#      PHP_XDEBUG_REMOTE_HOST: 10.254.254.254 # macOS
+#      PHP_XDEBUG_REMOTE_HOST: 10.0.75.1 # Windows
     volumes:
       - ./config/php/php.ini:/usr/local/etc/php/php.ini
       - ./www:/var/www/html
-#      - ./data/bin/build.sh:/usr/local/bin/build.sh
-#    command: /bin/ash -c "/usr/local/bin/build.sh"
+  #      - ./data/bin/build.sh:/usr/local/bin/build.sh
+  #    command: /bin/ash -c "/usr/local/bin/build.sh"
 
   nginx:
-    image: wodby/wordpress-nginx:4-1.13-3.0.2
+    image: wodby/nginx:$NGINX_TAG
+    container_name: "${PROJECT_NAME}_nginx"
     environment:
-      NGINX_STATIC_CONTENT_OPEN_FILE_CACHE: "off"
+      NGINX_STATIC_OPEN_FILE_CACHE: "off"
       NGINX_ERROR_LOG_LEVEL: debug
       NGINX_BACKEND_HOST: php
-    volumes:
-      - ./www:/var/www/html
+      NGINX_VHOST_PRESET: wordpress
+      #NGINX_SERVER_ROOT: /var/www/html/subdir
     depends_on:
       - php
+    volumes:
+      - ./www:/var/www/html
     labels:
       - 'traefik.backend=${PROJECT_NAME}_nginx'
       - 'traefik.port=80'
       - 'traefik.frontend.rule=Host:${PROJECT_NAME}.docker.localhost'
-#      - 'traefik.frontend.rule=HostRegexp:{subdomain:.+}.${PROJECT_NAME}.docker.localhost,${PROJECT_NAME}.docker.localhost'
+  #      - 'traefik.frontend.rule=HostRegexp:{subdomain:.+}.${PROJECT_NAME}.docker.localhost,${PROJECT_NAME}.docker.localhost'
 
   pma:
     image: phpmyadmin/phpmyadmin
+    container_name: "${PROJECT_NAME}_pma"
     environment:
       PMA_HOST: mariadb
-      PMA_USER: wordpress
-      PMA_PASSWORD: wordpress
+      PMA_USER: user
+      PMA_PASSWORD: password
       PHP_UPLOAD_MAX_FILESIZE: 1G
       PHP_MAX_INPUT_VARS: 1G
     labels:
@@ -56,13 +75,72 @@ services:
 
   mailhog:
     image: mailhog/mailhog
+    container_name: "${PROJECT_NAME}_mailhog"
     labels:
       - 'traefik.backend=${PROJECT_NAME}_mailhog'
       - 'traefik.port=8025'
       - 'traefik.frontend.rule=Host:mailhog.${PROJECT_NAME}.docker.localhost'
 
+#  postgres:
+#    image: wodby/postgres:$POSTGRES_TAG
+#    container_name: "${PROJECT_NAME}_postgres"
+#    stop_grace_period: 30s
+#    environment:
+#      POSTGRES_PASSWORD: $DB_PASSWORD
+#      POSTGRES_DB: $DB_NAME
+#      POSTGRES_USER: $DB_USER
+#    volumes:
+#      - ./postgres-init:/docker-entrypoint-initdb.d # Place init file(s) here.
+#      - /path/to/postgres/data/on/host:/var/lib/postgresql/data # I want to manage volumes manually.
+
+#  apache:
+#    image: wodby/apache:$APACHE_TAG
+#    container_name: "${PROJECT_NAME}_apache"
+#    depends_on:
+#      - php
+#    environment:
+#      APACHE_LOG_LEVEL: debug
+#      APACHE_BACKEND_HOST: php
+#      APACHE_VHOST_PRESET: php
+#    volumes:
+#      - ./:/var/www/html
+## For macOS users (https://wodby.com/stacks/wordpress/docs/local/docker-for-mac/)
+##      - ./:/var/www/html:cached # User-guided caching
+##      - docker-sync:/var/www/html # Docker-sync
+#    labels:
+#      - 'traefik.backend=${PROJECT_NAME}_apache'
+#      - 'traefik.port=80'
+
+#  redis:
+#    container_name: "${PROJECT_NAME}_redis"
+#    image: wodby/redis:$REDIS_TAG
+
+#  adminer:
+#    container_name: "${PROJECT_NAME}_adminer"
+#    image: wodby/adminer:$ADMINER_TAG
+#    environment:
+## For PostgreSQL:
+##      ADMINER_DEFAULT_DB_DRIVER: pgsql
+#      ADMINER_DEFAULT_DB_HOST: $DB_HOST
+#      ADMINER_DEFAULT_DB_NAME: $DB_NAME
+#    labels:
+#      - 'traefik.backend=${PROJECT_NAME}_adminer'
+#      - 'traefik.port=9000'
+#      - 'traefik.frontend.rule=Host:adminer.${PROJECT_BASE_URL}'
+
+#  elasticsearch:
+#    image: wodby/elasticsearch:$ELASTICSEARCH_TAG
+#    environment:
+#      ES_JAVA_OPTS: "-Xms500m -Xmx500m"
+#    ulimits:
+#      memlock:
+#        soft: -1
+#        hard: -1
+
+
 #  portainer:
 #    image: portainer/portainer
+#    container_name: "${PROJECT_NAME}_portainer"
 #    command: --no-auth -H unix:///var/run/docker.sock
 #    volumes:
 #      - /var/run/docker.sock:/var/run/docker.sock
@@ -73,6 +151,7 @@ services:
 
 #  varnish:
 #    image: wodby/wordpress-varnish:4.1-2.3.1
+#    container_name: "${PROJECT_NAME}_varnish"
 #    depends_on:
 #      - nginx
 #    environment:
@@ -86,3 +165,16 @@ services:
 
 #  redis:
 #    image: wodby/redis:4.0-2.1.4
+#    container_name: "${PROJECT_NAME}_redis"
+
+#  memcached:
+#    container_name: "${PROJECT_NAME}_memcached"
+#    image: wodby/memcached:$MEMCACHED_TAG
+
+#  opensmtpd:
+#    container_name: "${PROJECT_NAME}_opensmtpd"
+#    image: wodby/opensmtpd:$OPENSMTPD_TAG
+
+#  rsyslog:
+#    container_name: "${PROJECT_NAME}_rsyslog"
+#    image: wodby/rsyslog:$RSYSLOG_TAG
